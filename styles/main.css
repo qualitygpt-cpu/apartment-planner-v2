@@ -68,9 +68,11 @@ body {
 }
 
 .dimension-label {
-  font-size: 9px;
+  font-size: 8px;
   fill: #0f172a;
   paint-order: stroke;
   stroke: #ffffff;
   stroke-width: 2;
 }
+
+.selected-item-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
