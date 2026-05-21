@@ -17,61 +17,112 @@ function addRect(group, obj, scale, cssClass, selectedId) {
   return rect;
 }
 
-function addDimensionLine(group, scale, x1m, y1m, x2m, y2m, label, className = 'dimension') {
-  const x1 = x1m * scale;
-  const y1 = y1m * scale;
-  const x2 = x2m * scale;
-  const y2 = y2m * scale;
-
-  group.appendChild(el('line', { x1, y1, x2, y2, class: className }));
-
-  const midX = (x1 + x2) / 2;
-  const midY = (y1 + y2) / 2;
-  const text = el('text', { x: midX, y: midY - 4, class: 'dimension-label', 'text-anchor': 'middle' });
-  text.textContent = label;
-  group.appendChild(text);
+function metersLabel(value) {
+  return `${Math.max(0, value).toFixed(2)} м`;
 }
 
-function metersLabel(value) {
-  return `${value.toFixed(2)} м`;
+function addLinearDimension(group, scale, spec) {
+  const {
+    axis,
+    x1,
+    y1,
+    x2,
+    y2,
+    dimX,
+    dimY,
+    label,
+    className = 'dimension'
+  } = spec;
+
+  const sx1 = x1 * scale;
+  const sy1 = y1 * scale;
+  const sx2 = x2 * scale;
+  const sy2 = y2 * scale;
+  const sdx = dimX * scale;
+  const sdy = dimY * scale;
+
+  group.appendChild(el('line', { x1: sx1, y1: sy1, x2: sdx, y2: sdy, class: 'dimension-ext' }));
+  group.appendChild(el('line', { x1: sx2, y1: sy2, x2: sdx, y2: sdy, class: 'dimension-ext' }));
+
+  if (axis === 'x') {
+    group.appendChild(el('line', { x1: sx1, y1: sdy, x2: sx2, y2: sdy, class: className }));
+    const text = el('text', { x: (sx1 + sx2) / 2, y: sdy - 4, class: 'dimension-label', 'text-anchor': 'middle' });
+    text.textContent = label;
+    group.appendChild(text);
+  } else {
+    group.appendChild(el('line', { x1: sdx, y1: sy1, x2: sdx, y2: sy2, class: className }));
+    const text = el('text', { x: sdx + 4, y: (sy1 + sy2) / 2, class: 'dimension-label', 'text-anchor': 'start' });
+    text.textContent = label;
+    group.appendChild(text);
+  }
 }
 
 function drawPlanDimensions(group, state, scale) {
-  const rooms = state.rooms;
   const openings = [...state.doorOpenings, ...state.windows];
+  const step = 0.22;
 
-  rooms.forEach((room) => {
-    addDimensionLine(group, scale, room.x, room.y - 0.15, room.x + room.width, room.y - 0.15, metersLabel(room.width));
-    addDimensionLine(group, scale, room.x - 0.15, room.y, room.x - 0.15, room.y + room.height, metersLabel(room.height));
+  state.rooms.forEach((room) => {
+    const lanes = { top: 1, left: 1, right: 1, bottom: 1 };
 
-    const roomOpenings = openings.filter((o) => {
-      if (o.type === 'window') return o.roomId === room.id;
-      return o.roomA === room.id || o.roomB === room.id;
+    addLinearDimension(group, scale, {
+      axis: 'x', x1: room.x, y1: room.y, x2: room.x + room.width, y2: room.y,
+      dimX: room.x, dimY: room.y - step * lanes.top++,
+      label: metersLabel(room.width), className: 'dimension'
     });
 
+    addLinearDimension(group, scale, {
+      axis: 'y', x1: room.x, y1: room.y, x2: room.x, y2: room.y + room.height,
+      dimX: room.x - step * lanes.left++, dimY: room.y,
+      label: metersLabel(room.height), className: 'dimension'
+    });
+
+    const roomOpenings = openings.filter((o) => (o.type === 'window' ? o.roomId === room.id : (o.roomA === room.id || o.roomB === room.id)));
+
     roomOpenings.forEach((o) => {
-      const isHorizontal = o.width >= o.height;
-      if (isHorizontal) {
-        const edgeDist = o.x - room.x;
-        if (edgeDist >= 0 && edgeDist <= room.width) {
-          addDimensionLine(group, scale, room.x, o.y - 0.08, o.x, o.y - 0.08, metersLabel(edgeDist), 'dimension-sub');
-        }
-        addDimensionLine(group, scale, o.x, o.y - 0.02, o.x + o.width, o.y - 0.02, metersLabel(o.width), 'dimension-opening');
+      const horizontal = o.width >= o.height;
+      if (horizontal) {
+        const laneY = room.y - step * lanes.top++;
+        addLinearDimension(group, scale, {
+          axis: 'x', x1: room.x, y1: room.y, x2: o.x, y2: room.y,
+          dimX: room.x, dimY: laneY,
+          label: metersLabel(o.x - room.x), className: 'dimension-sub'
+        });
+        addLinearDimension(group, scale, {
+          axis: 'x', x1: o.x, y1: o.y, x2: o.x + o.width, y2: o.y,
+          dimX: o.x, dimY: laneY - 0.12,
+          label: metersLabel(o.width), className: 'dimension-opening'
+        });
       } else {
-        const edgeDist = o.y - room.y;
-        if (edgeDist >= 0 && edgeDist <= room.height) {
-          addDimensionLine(group, scale, o.x - 0.08, room.y, o.x - 0.08, o.y, metersLabel(edgeDist), 'dimension-sub');
-        }
-        addDimensionLine(group, scale, o.x + o.width + 0.02, o.y, o.x + o.width + 0.02, o.y + o.height, metersLabel(o.height), 'dimension-opening');
+        const laneX = room.x - step * lanes.left++;
+        addLinearDimension(group, scale, {
+          axis: 'y', x1: room.x, y1: room.y, x2: room.x, y2: o.y,
+          dimX: laneX, dimY: room.y,
+          label: metersLabel(o.y - room.y), className: 'dimension-sub'
+        });
+        addLinearDimension(group, scale, {
+          axis: 'y', x1: o.x + o.width, y1: o.y, x2: o.x + o.width, y2: o.y + o.height,
+          dimX: laneX - 0.12, dimY: o.y,
+          label: metersLabel(o.height), className: 'dimension-opening'
+        });
       }
     });
   });
 }
 
 function drawItemDimensions(group, items, scale) {
-  items.forEach((item) => {
-    addDimensionLine(group, scale, item.x, item.y - 0.08, item.x + item.width, item.y - 0.08, metersLabel(item.width), 'dimension-item');
-    addDimensionLine(group, scale, item.x - 0.08, item.y, item.x - 0.08, item.y + item.height, metersLabel(item.height), 'dimension-item');
+  const step = 0.12;
+  items.forEach((item, index) => {
+    const lane = 1 + (index % 2);
+    addLinearDimension(group, scale, {
+      axis: 'x', x1: item.x, y1: item.y, x2: item.x + item.width, y2: item.y,
+      dimX: item.x, dimY: item.y - step * lane,
+      label: metersLabel(item.width), className: 'dimension-item'
+    });
+    addLinearDimension(group, scale, {
+      axis: 'y', x1: item.x, y1: item.y, x2: item.x, y2: item.y + item.height,
+      dimX: item.x - step * lane, dimY: item.y,
+      label: metersLabel(item.height), className: 'dimension-item'
+    });
   });
 }
 
@@ -87,7 +138,6 @@ export function renderPlan(svg, model) {
   state.rooms.forEach((room) => {
     const rect = addRect(root, room, scale, 'room', selectedId);
     rect.setAttribute('fill', room.fill);
-
     const label = el('text', {
       x: (room.x + room.width / 2) * scale,
       y: (room.y + room.height / 2) * scale,
@@ -103,23 +153,20 @@ export function renderPlan(svg, model) {
   state.windows.forEach((win) => addRect(root, win, scale, 'opening-window', selectedId));
   state.engineering.forEach((eng) => addRect(root, eng, scale, `engineering ${eng.type}`, selectedId));
 
-  [...state.items]
-    .sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0))
-    .forEach((item) => {
-      const g = el('g', { 'data-id': item.id, class: 'movable-wrap' });
-      const centerX = (item.x + item.width / 2) * scale;
-      const centerY = (item.y + item.height / 2) * scale;
-      g.setAttribute('transform', `rotate(${item.rotation} ${centerX} ${centerY})`);
-      const style = TEXTURES[item.textureId] || (item.category === 'appliance' ? TEXTURES.defaultAppliance : TEXTURES.defaultFurniture);
-      const rect = addRect(g, item, scale, `${item.category} item`, selectedId);
-      rect.setAttribute('fill', style.fill);
-      rect.setAttribute('stroke', style.stroke);
-
-      const t = el('text', { x: centerX, y: centerY, class: 'item-label', 'text-anchor': 'middle' });
-      t.textContent = item.name;
-      g.appendChild(t);
-      root.appendChild(g);
-    });
+  [...state.items].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0)).forEach((item) => {
+    const g = el('g', { 'data-id': item.id, class: 'movable-wrap' });
+    const centerX = (item.x + item.width / 2) * scale;
+    const centerY = (item.y + item.height / 2) * scale;
+    g.setAttribute('transform', `rotate(${item.rotation} ${centerX} ${centerY})`);
+    const style = TEXTURES[item.textureId] || (item.category === 'appliance' ? TEXTURES.defaultAppliance : TEXTURES.defaultFurniture);
+    const rect = addRect(g, item, scale, `${item.category} item`, selectedId);
+    rect.setAttribute('fill', style.fill);
+    rect.setAttribute('stroke', style.stroke);
+    const t = el('text', { x: centerX, y: centerY, class: 'item-label', 'text-anchor': 'middle' });
+    t.textContent = item.name;
+    g.appendChild(t);
+    root.appendChild(g);
+  });
 
   if (model.showStructureDimensions) {
     const dimensionGroup = el('g', { class: 'dimension-group' });

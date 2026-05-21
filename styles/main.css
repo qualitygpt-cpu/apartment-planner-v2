@@ -32,7 +32,7 @@ body {
 .engineering.pipe { fill: #f59e0b; }
 .engineering.radiator { fill: #ef4444; }
 .item { stroke-width: 2; }
-.item-label { font-size: 10px; fill: #1f2937; pointer-events: none; dominant-baseline: middle; }
+.item-label { font-size: 9px; fill: #1f2937; pointer-events: none; dominant-baseline: middle; }
 .selected { stroke: #ff00b3 !important; stroke-width: 3 !important; }
 .selected-tree { background: #fde68a; }
 
@@ -46,25 +46,29 @@ body {
 }
 .dimension {
   stroke: #0f172a;
-  stroke-width: 1;
-  stroke-dasharray: 4 3;
+  stroke-width: 0.9;
 }
+.dimension-ext {
+  stroke: #64748b;
+  stroke-width: 0.7;
+}
+
 .dimension-sub {
   stroke: #334155;
-  stroke-width: 1;
-  stroke-dasharray: 2 3;
+  stroke-width: 0.8;
 }
+
 .dimension-opening {
   stroke: #0ea5e9;
   stroke-width: 1.2;
 }
 .dimension-item {
   stroke: #7c3aed;
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
+  stroke-width: 0.8;
 }
+
 .dimension-label {
-  font-size: 10px;
+  font-size: 9px;
   fill: #0f172a;
   paint-order: stroke;
   stroke: #ffffff;
