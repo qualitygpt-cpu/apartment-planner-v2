@@ -11,6 +11,22 @@ const toggleItemDimensionsBtn = document.getElementById('toggleItemDimensionsBtn
 
 const model = createModel();
 
+function formatFurnitureExport(items) {
+  const payload = items.map((item) => ({
+    ...item,
+    x: Number(item.x.toFixed(3)),
+    y: Number(item.y.toFixed(3)),
+    rotation: Number(item.rotation.toFixed(2))
+  }));
+  return `items: ${JSON.stringify(payload, null, 2)}`;
+}
+
+async function exportFurnitureLayout() {
+  const text = formatFurnitureExport(model.state.items);
+  await navigator.clipboard.writeText(text);
+  statusText.textContent = 'Экспорт мебели скопирован в буфер';
+}
+
 function syncDimensionButtons() {
   toggleDimensionsBtn.textContent = `Размеры: ${model.showStructureDimensions ? 'вкл' : 'выкл'}`;
   toggleItemDimensionsBtn.textContent = `Размеры мебели: ${model.showItemDimensions ? 'вкл' : 'выкл'}`;
@@ -52,6 +68,14 @@ document.getElementById('resetViewBtn').addEventListener('click', controls.reset
 document.getElementById('resetFurnitureBtn').addEventListener('click', () => {
   resetFurniture(model);
   rerender();
+});
+
+document.getElementById('exportFurnitureBtn').addEventListener('click', async () => {
+  try {
+    await exportFurnitureLayout();
+  } catch {
+    statusText.textContent = 'Не удалось скопировать экспорт мебели';
+  }
 });
 
 toggleDimensionsBtn.addEventListener('click', () => {
