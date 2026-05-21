@@ -40,46 +40,77 @@ function snapSelectedToNearestWall() {
     statusText.textContent = 'Выберите movable-объект в режиме редактирования';
     return;
   }
-  if (!obj.snapToWall) {
-    statusText.textContent = 'Для этого объекта привязка к стене отключена';
-    return;
-  }
-
-  const room = model.state.rooms.find((r) => r.id === obj.roomId);
-  if (!room) return;
-
   const threshold = 0.25;
-  const dLeft = Math.abs(obj.x - room.x);
-  const dRight = Math.abs((room.x + room.width) - (obj.x + obj.width));
-  const dTop = Math.abs(obj.y - room.y);
-  const dBottom = Math.abs((room.y + room.height) - (obj.y + obj.height));
+  const epsilon = 1e-9;
+  const objMinX = obj.x;
+  const objMaxX = obj.x + obj.width;
+  const objMinY = obj.y;
+  const objMaxY = obj.y + obj.height;
 
-  const closeSides = [];
-  if (dLeft <= threshold) closeSides.push('left');
-  if (dRight <= threshold) closeSides.push('right');
-  if (dTop <= threshold) closeSides.push('top');
-  if (dBottom <= threshold) closeSides.push('bottom');
+  const verticalCandidates = [];
+  const horizontalCandidates = [];
 
-  if (!closeSides.length) {
+  const overlaps = (a1, a2, b1, b2) => Math.max(a1, b1) <= Math.min(a2, b2) + epsilon;
+
+  model.state.walls.forEach((wall) => {
+    const wallMinX = wall.x;
+    const wallMaxX = wall.x + wall.width;
+    const wallMinY = wall.y;
+    const wallMaxY = wall.y + wall.height;
+
+    if (wall.width <= wall.height) {
+      if (!overlaps(objMinY, objMaxY, wallMinY, wallMaxY)) return;
+
+      const distanceToLeftFace = Math.abs(objMaxX - wallMinX);
+      if (distanceToLeftFace <= threshold) {
+        verticalCandidates.push({ side: 'right', targetX: wallMinX - obj.width, distance: distanceToLeftFace });
+      }
+
+      const distanceToRightFace = Math.abs(objMinX - wallMaxX);
+      if (distanceToRightFace <= threshold) {
+        verticalCandidates.push({ side: 'left', targetX: wallMaxX, distance: distanceToRightFace });
+      }
+      return;
+    }
+
+    if (!overlaps(objMinX, objMaxX, wallMinX, wallMaxX)) return;
+
+    const distanceToTopFace = Math.abs(objMaxY - wallMinY);
+    if (distanceToTopFace <= threshold) {
+      horizontalCandidates.push({ side: 'bottom', targetY: wallMinY - obj.height, distance: distanceToTopFace });
+    }
+
+    const distanceToBottomFace = Math.abs(objMinY - wallMaxY);
+    if (distanceToBottomFace <= threshold) {
+      horizontalCandidates.push({ side: 'top', targetY: wallMaxY, distance: distanceToBottomFace });
+    }
+  });
+
+  if (!verticalCandidates.length && !horizontalCandidates.length) {
     statusText.textContent = 'Объект должен быть не дальше 0.25 м от стены';
     return;
   }
 
-  if (closeSides.includes('left')) obj.x = room.x;
-  if (closeSides.includes('right')) obj.x = room.x + room.width - obj.width;
-  if (closeSides.includes('top')) obj.y = room.y;
-  if (closeSides.includes('bottom')) obj.y = room.y + room.height - obj.height;
-
-  if (closeSides.includes('left') || closeSides.includes('right')) {
-    obj.rotation = normalizeAngle(Math.round((obj.rotation || 0) / 90) * 90);
+  const snappedSides = [];
+  if (verticalCandidates.length) {
+    const bestVertical = verticalCandidates.reduce((best, current) => (
+      current.distance < best.distance ? current : best
+    ));
+    obj.x = bestVertical.targetX;
+    snappedSides.push(bestVertical.side);
   }
-  if (closeSides.includes('top') || closeSides.includes('bottom')) {
-    obj.rotation = normalizeAngle(90 + Math.round(((obj.rotation || 0) - 90) / 90) * 90);
+
+  if (horizontalCandidates.length) {
+    const bestHorizontal = horizontalCandidates.reduce((best, current) => (
+      current.distance < best.distance ? current : best
+    ));
+    obj.y = bestHorizontal.targetY;
+    snappedSides.push(bestHorizontal.side);
   }
 
   persistLayout(model.state.items);
   rerender();
-  statusText.textContent = `Привязка к стене: ${closeSides.join('+')}`;
+  statusText.textContent = `Привязка к стене: ${snappedSides.join('+')}`;
 }
 
 function formatFurnitureExport(items) {
@@ -105,7 +136,7 @@ function syncDimensionButtons() {
 
 function syncSelectedToolsVisibility() {
   const obj = getSelectedMovableItem();
-  selectedItemTools.hidden = !(model.mode === 'edit' && obj);
+  selectedItemTools.hidden = !obj;
 }
 
 function rerender() {
