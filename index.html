@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>apartment-furniture-planner MVP</title>
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <header class="toolbar">
+    <div class="mode-buttons" role="group" aria-label="Режимы">
+      <button id="viewModeBtn" class="btn active" type="button">Режим просмотра</button>
+      <button id="editModeBtn" class="btn" type="button">Режим редактирования</button>
+    </div>
+    <div class="view-buttons" role="group" aria-label="Навигация">
+      <button id="zoomInBtn" class="btn" type="button">+</button>
+      <button id="zoomOutBtn" class="btn" type="button">-</button>
+      <button id="resetViewBtn" class="btn" type="button">Сброс вида</button>
+      <button id="resetFurnitureBtn" class="btn" type="button">Сброс мебели</button>
+    </div>
+    <div id="statusText" class="status">Просмотр</div>
+  </header>
+
+  <main class="layout">
+    <section class="plan-panel">
+      <svg id="planSvg" class="plan-svg" aria-label="План квартиры"></svg>
+    </section>
+    <aside class="tree-panel">
+      <h2>Дерево объектов</h2>
+      <div id="treeContainer" class="tree-container"></div>
+    </aside>
+  </main>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
