@@ -21,6 +21,15 @@ function metersLabel(value) {
   return `${Math.max(0, value).toFixed(2)} м`;
 }
 
+function addTick(group, x, y, axis, className) {
+  const tick = 4;
+  if (axis === 'x') {
+    group.appendChild(el('line', { x1: x, y1: y - tick, x2: x, y2: y + tick, class: className }));
+  } else {
+    group.appendChild(el('line', { x1: x - tick, y1: y, x2: x + tick, y2: y, class: className }));
+  }
+}
+
 function addLinearDimension(group, scale, spec) {
   const {
     axis,
@@ -41,17 +50,22 @@ function addLinearDimension(group, scale, spec) {
   const sdx = dimX * scale;
   const sdy = dimY * scale;
 
-  group.appendChild(el('line', { x1: sx1, y1: sy1, x2: sdx, y2: sdy, class: 'dimension-ext' }));
-  group.appendChild(el('line', { x1: sx2, y1: sy2, x2: sdx, y2: sdy, class: 'dimension-ext' }));
-
   if (axis === 'x') {
+    group.appendChild(el('line', { x1: sx1, y1: sy1, x2: sx1, y2: sdy, class: 'dimension-ext' }));
+    group.appendChild(el('line', { x1: sx2, y1: sy2, x2: sx2, y2: sdy, class: 'dimension-ext' }));
     group.appendChild(el('line', { x1: sx1, y1: sdy, x2: sx2, y2: sdy, class: className }));
-    const text = el('text', { x: (sx1 + sx2) / 2, y: sdy - 4, class: 'dimension-label', 'text-anchor': 'middle' });
+    addTick(group, sx1, sdy, axis, className);
+    addTick(group, sx2, sdy, axis, className);
+    const text = el('text', { x: (sx1 + sx2) / 2, y: sdy - 6, class: 'dimension-label', 'text-anchor': 'middle' });
     text.textContent = label;
     group.appendChild(text);
   } else {
+    group.appendChild(el('line', { x1: sx1, y1: sy1, x2: sdx, y2: sy1, class: 'dimension-ext' }));
+    group.appendChild(el('line', { x1: sx2, y1: sy2, x2: sdx, y2: sy2, class: 'dimension-ext' }));
     group.appendChild(el('line', { x1: sdx, y1: sy1, x2: sdx, y2: sy2, class: className }));
-    const text = el('text', { x: sdx + 4, y: (sy1 + sy2) / 2, class: 'dimension-label', 'text-anchor': 'start' });
+    addTick(group, sdx, sy1, axis, className);
+    addTick(group, sdx, sy2, axis, className);
+    const text = el('text', { x: sdx + 6, y: (sy1 + sy2) / 2, class: 'dimension-label', 'text-anchor': 'start' });
     text.textContent = label;
     group.appendChild(text);
   }
@@ -59,20 +73,31 @@ function addLinearDimension(group, scale, spec) {
 
 function drawPlanDimensions(group, state, scale) {
   const openings = [...state.doorOpenings, ...state.windows];
-  const step = 0.22;
+  const step = 0.32;
+  const lanesBySide = new Map();
+
+  const reserveLane = (side, coordinate) => {
+    const key = `${side}:${coordinate.toFixed(3)}`;
+    const lane = (lanesBySide.get(key) || 0) + 1;
+    lanesBySide.set(key, lane);
+    return lane;
+  };
 
   state.rooms.forEach((room) => {
-    const lanes = { top: 1, left: 1, right: 1, bottom: 1 };
+    const lanes = {
+      top: reserveLane('top', room.y),
+      left: reserveLane('left', room.x)
+    };
 
     addLinearDimension(group, scale, {
       axis: 'x', x1: room.x, y1: room.y, x2: room.x + room.width, y2: room.y,
-      dimX: room.x, dimY: room.y - step * lanes.top++,
+      dimX: room.x, dimY: room.y - step * lanes.top,
       label: metersLabel(room.width), className: 'dimension'
     });
 
     addLinearDimension(group, scale, {
       axis: 'y', x1: room.x, y1: room.y, x2: room.x, y2: room.y + room.height,
-      dimX: room.x - step * lanes.left++, dimY: room.y,
+      dimX: room.x - step * lanes.left, dimY: room.y,
       label: metersLabel(room.height), className: 'dimension'
     });
 
@@ -81,7 +106,7 @@ function drawPlanDimensions(group, state, scale) {
     roomOpenings.forEach((o) => {
       const horizontal = o.width >= o.height;
       if (horizontal) {
-        const laneY = room.y - step * lanes.top++;
+        const laneY = room.y - step * reserveLane('top', room.y);
         addLinearDimension(group, scale, {
           axis: 'x', x1: room.x, y1: room.y, x2: o.x, y2: room.y,
           dimX: room.x, dimY: laneY,
@@ -93,7 +118,7 @@ function drawPlanDimensions(group, state, scale) {
           label: metersLabel(o.width), className: 'dimension-opening'
         });
       } else {
-        const laneX = room.x - step * lanes.left++;
+        const laneX = room.x - step * reserveLane('left', room.x);
         addLinearDimension(group, scale, {
           axis: 'y', x1: room.x, y1: room.y, x2: room.x, y2: o.y,
           dimX: laneX, dimY: room.y,
