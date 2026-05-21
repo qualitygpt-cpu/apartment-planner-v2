@@ -76,6 +76,13 @@ function drawPlanDimensions(group, state, scale) {
   const step = 0.32;
   const lanesBySide = new Map();
 
+  const minX = Math.min(...state.rooms.map((r) => r.x));
+  const minY = Math.min(...state.rooms.map((r) => r.y));
+  const maxX = Math.max(...state.rooms.map((r) => r.x + r.width));
+  const maxY = Math.max(...state.rooms.map((r) => r.y + r.height));
+  const midX = (minX + maxX) / 2;
+  const midY = (minY + maxY) / 2;
+
   const reserveLane = (side, coordinate) => {
     const key = `${side}:${coordinate.toFixed(3)}`;
     const lane = (lanesBySide.get(key) || 0) + 1;
@@ -83,21 +90,32 @@ function drawPlanDimensions(group, state, scale) {
     return lane;
   };
 
-  state.rooms.forEach((room) => {
-    const lanes = {
-      top: reserveLane('top', room.y),
-      left: reserveLane('left', room.x)
-    };
+  const placeOnSide = (side, coordinate, lane) => {
+    if (side === 'top') return coordinate - step * lane;
+    if (side === 'bottom') return coordinate + step * lane;
+    if (side === 'left') return coordinate - step * lane;
+    return coordinate + step * lane;
+  };
 
+  state.rooms.forEach((room) => {
+    const roomCenterX = room.x + room.width / 2;
+    const roomCenterY = room.y + room.height / 2;
+    const horizontalSide = roomCenterY <= midY ? 'top' : 'bottom';
+    const verticalSide = roomCenterX <= midX ? 'left' : 'right';
+
+    const roomHorizontalLane = reserveLane(horizontalSide, horizontalSide === 'top' ? room.y : room.y + room.height);
     addLinearDimension(group, scale, {
       axis: 'x', x1: room.x, y1: room.y, x2: room.x + room.width, y2: room.y,
-      dimX: room.x, dimY: room.y - step * lanes.top,
+      dimX: room.x,
+      dimY: placeOnSide(horizontalSide, horizontalSide === 'top' ? room.y : room.y + room.height, roomHorizontalLane),
       label: metersLabel(room.width), className: 'dimension'
     });
 
+    const roomVerticalLane = reserveLane(verticalSide, verticalSide === 'left' ? room.x : room.x + room.width);
     addLinearDimension(group, scale, {
       axis: 'y', x1: room.x, y1: room.y, x2: room.x, y2: room.y + room.height,
-      dimX: room.x - step * lanes.left, dimY: room.y,
+      dimX: placeOnSide(verticalSide, verticalSide === 'left' ? room.x : room.x + room.width, roomVerticalLane),
+      dimY: room.y,
       label: metersLabel(room.height), className: 'dimension'
     });
 
@@ -106,27 +124,37 @@ function drawPlanDimensions(group, state, scale) {
     roomOpenings.forEach((o) => {
       const horizontal = o.width >= o.height;
       if (horizontal) {
-        const laneY = room.y - step * reserveLane('top', room.y);
+        const topDist = Math.abs(o.y - room.y);
+        const bottomDist = Math.abs(o.y + o.height - (room.y + room.height));
+        const side = topDist <= bottomDist ? 'top' : 'bottom';
+        const edge = side === 'top' ? room.y : room.y + room.height;
+        const lane = reserveLane(side, edge);
+        const laneY = placeOnSide(side, edge, lane);
         addLinearDimension(group, scale, {
-          axis: 'x', x1: room.x, y1: room.y, x2: o.x, y2: room.y,
+          axis: 'x', x1: room.x, y1: side === 'top' ? room.y : room.y + room.height, x2: o.x, y2: side === 'top' ? room.y : room.y + room.height,
           dimX: room.x, dimY: laneY,
           label: metersLabel(o.x - room.x), className: 'dimension-sub'
         });
         addLinearDimension(group, scale, {
           axis: 'x', x1: o.x, y1: o.y, x2: o.x + o.width, y2: o.y,
-          dimX: o.x, dimY: laneY - 0.12,
+          dimX: o.x, dimY: laneY + (side === 'top' ? -0.12 : 0.12),
           label: metersLabel(o.width), className: 'dimension-opening'
         });
       } else {
-        const laneX = room.x - step * reserveLane('left', room.x);
+        const leftDist = Math.abs(o.x - room.x);
+        const rightDist = Math.abs(o.x + o.width - (room.x + room.width));
+        const side = leftDist <= rightDist ? 'left' : 'right';
+        const edge = side === 'left' ? room.x : room.x + room.width;
+        const lane = reserveLane(side, edge);
+        const laneX = placeOnSide(side, edge, lane);
         addLinearDimension(group, scale, {
-          axis: 'y', x1: room.x, y1: room.y, x2: room.x, y2: o.y,
+          axis: 'y', x1: side === 'left' ? room.x : room.x + room.width, y1: room.y, x2: side === 'left' ? room.x : room.x + room.width, y2: o.y,
           dimX: laneX, dimY: room.y,
           label: metersLabel(o.y - room.y), className: 'dimension-sub'
         });
         addLinearDimension(group, scale, {
           axis: 'y', x1: o.x + o.width, y1: o.y, x2: o.x + o.width, y2: o.y + o.height,
-          dimX: laneX - 0.12, dimY: o.y,
+          dimX: laneX + (side === 'left' ? -0.12 : 0.12), dimY: o.y,
           label: metersLabel(o.height), className: 'dimension-opening'
         });
       }
