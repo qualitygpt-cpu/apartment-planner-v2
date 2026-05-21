@@ -40,3 +40,33 @@ body {
 .tree-container h4 { margin: 8px 0 4px; font-size: 13px; }
 .tree-container ul { margin: 0; padding-left: 20px; }
 .tree-container li, .tree-container summary { cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+
+.dimension-group {
+  pointer-events: none;
+}
+.dimension {
+  stroke: #0f172a;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+.dimension-sub {
+  stroke: #334155;
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.dimension-opening {
+  stroke: #0ea5e9;
+  stroke-width: 1.2;
+}
+.dimension-item {
+  stroke: #7c3aed;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.dimension-label {
+  font-size: 10px;
+  fill: #0f172a;
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 2;
+}

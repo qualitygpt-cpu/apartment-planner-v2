@@ -17,6 +17,64 @@ function addRect(group, obj, scale, cssClass, selectedId) {
   return rect;
 }
 
+function addDimensionLine(group, scale, x1m, y1m, x2m, y2m, label, className = 'dimension') {
+  const x1 = x1m * scale;
+  const y1 = y1m * scale;
+  const x2 = x2m * scale;
+  const y2 = y2m * scale;
+
+  group.appendChild(el('line', { x1, y1, x2, y2, class: className }));
+
+  const midX = (x1 + x2) / 2;
+  const midY = (y1 + y2) / 2;
+  const text = el('text', { x: midX, y: midY - 4, class: 'dimension-label', 'text-anchor': 'middle' });
+  text.textContent = label;
+  group.appendChild(text);
+}
+
+function metersLabel(value) {
+  return `${value.toFixed(2)} м`;
+}
+
+function drawPlanDimensions(group, state, scale) {
+  const rooms = state.rooms;
+  const openings = [...state.doorOpenings, ...state.windows];
+
+  rooms.forEach((room) => {
+    addDimensionLine(group, scale, room.x, room.y - 0.15, room.x + room.width, room.y - 0.15, metersLabel(room.width));
+    addDimensionLine(group, scale, room.x - 0.15, room.y, room.x - 0.15, room.y + room.height, metersLabel(room.height));
+
+    const roomOpenings = openings.filter((o) => {
+      if (o.type === 'window') return o.roomId === room.id;
+      return o.roomA === room.id || o.roomB === room.id;
+    });
+
+    roomOpenings.forEach((o) => {
+      const isHorizontal = o.width >= o.height;
+      if (isHorizontal) {
+        const edgeDist = o.x - room.x;
+        if (edgeDist >= 0 && edgeDist <= room.width) {
+          addDimensionLine(group, scale, room.x, o.y - 0.08, o.x, o.y - 0.08, metersLabel(edgeDist), 'dimension-sub');
+        }
+        addDimensionLine(group, scale, o.x, o.y - 0.02, o.x + o.width, o.y - 0.02, metersLabel(o.width), 'dimension-opening');
+      } else {
+        const edgeDist = o.y - room.y;
+        if (edgeDist >= 0 && edgeDist <= room.height) {
+          addDimensionLine(group, scale, o.x - 0.08, room.y, o.x - 0.08, o.y, metersLabel(edgeDist), 'dimension-sub');
+        }
+        addDimensionLine(group, scale, o.x + o.width + 0.02, o.y, o.x + o.width + 0.02, o.y + o.height, metersLabel(o.height), 'dimension-opening');
+      }
+    });
+  });
+}
+
+function drawItemDimensions(group, items, scale) {
+  items.forEach((item) => {
+    addDimensionLine(group, scale, item.x, item.y - 0.08, item.x + item.width, item.y - 0.08, metersLabel(item.width), 'dimension-item');
+    addDimensionLine(group, scale, item.x - 0.08, item.y, item.x - 0.08, item.y + item.height, metersLabel(item.height), 'dimension-item');
+  });
+}
+
 export function renderPlan(svg, model) {
   const { state, selectedId } = model;
   const scale = state.meta.scalePxPerMeter;
@@ -62,4 +120,16 @@ export function renderPlan(svg, model) {
       g.appendChild(t);
       root.appendChild(g);
     });
+
+  if (model.showStructureDimensions) {
+    const dimensionGroup = el('g', { class: 'dimension-group' });
+    drawPlanDimensions(dimensionGroup, state, scale);
+    root.appendChild(dimensionGroup);
+  }
+
+  if (model.showItemDimensions) {
+    const itemDimensionGroup = el('g', { class: 'dimension-group item-dimensions' });
+    drawItemDimensions(itemDimensionGroup, state.items, scale);
+    root.appendChild(itemDimensionGroup);
+  }
 }

@@ -12,7 +12,9 @@ export function createModel() {
     initialItems,
     mode: 'view',
     selectedId: null,
-    viewBox: { x: 0, y: 0, width: 1200, height: 860 }
+    viewBox: { x: 0, y: 0, width: 1200, height: 860 },
+    showStructureDimensions: false,
+    showItemDimensions: false
   };
 }
 

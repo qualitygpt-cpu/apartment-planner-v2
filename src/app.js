@@ -6,8 +6,15 @@ import { setupInteractions } from './interactions.js';
 const svg = document.getElementById('planSvg');
 const treeContainer = document.getElementById('treeContainer');
 const statusText = document.getElementById('statusText');
+const toggleDimensionsBtn = document.getElementById('toggleDimensionsBtn');
+const toggleItemDimensionsBtn = document.getElementById('toggleItemDimensionsBtn');
 
 const model = createModel();
+
+function syncDimensionButtons() {
+  toggleDimensionsBtn.textContent = `Размеры: ${model.showStructureDimensions ? 'вкл' : 'выкл'}`;
+  toggleItemDimensionsBtn.textContent = `Размеры мебели: ${model.showItemDimensions ? 'вкл' : 'выкл'}`;
+}
 
 function rerender() {
   renderPlan(svg, model);
@@ -15,6 +22,7 @@ function rerender() {
     model.selectedId = id;
     rerender();
   });
+  syncDimensionButtons();
 }
 
 const controls = setupInteractions({
@@ -43,6 +51,16 @@ document.getElementById('zoomOutBtn').addEventListener('click', controls.zoomOut
 document.getElementById('resetViewBtn').addEventListener('click', controls.resetView);
 document.getElementById('resetFurnitureBtn').addEventListener('click', () => {
   resetFurniture(model);
+  rerender();
+});
+
+toggleDimensionsBtn.addEventListener('click', () => {
+  model.showStructureDimensions = !model.showStructureDimensions;
+  rerender();
+});
+
+toggleItemDimensionsBtn.addEventListener('click', () => {
+  model.showItemDimensions = !model.showItemDimensions;
   rerender();
 });
 
