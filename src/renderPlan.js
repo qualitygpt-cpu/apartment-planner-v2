@@ -50,10 +50,9 @@ function addLinearDimension(group, scale, spec) {
   const sdx = dimX * scale;
   const sdy = dimY * scale;
 
-  group.appendChild(el('line', { x1: sx1, y1: sy1, x2: sdx, y2: sdy, class: 'dimension-ext' }));
-  group.appendChild(el('line', { x1: sx2, y1: sy2, x2: sdx, y2: sdy, class: 'dimension-ext' }));
-
   if (axis === 'x') {
+    group.appendChild(el('line', { x1: sx1, y1: sy1, x2: sx1, y2: sdy, class: 'dimension-ext' }));
+    group.appendChild(el('line', { x1: sx2, y1: sy2, x2: sx2, y2: sdy, class: 'dimension-ext' }));
     group.appendChild(el('line', { x1: sx1, y1: sdy, x2: sx2, y2: sdy, class: className }));
     addTick(group, sx1, sdy, axis, className);
     addTick(group, sx2, sdy, axis, className);
@@ -61,6 +60,8 @@ function addLinearDimension(group, scale, spec) {
     text.textContent = label;
     group.appendChild(text);
   } else {
+    group.appendChild(el('line', { x1: sx1, y1: sy1, x2: sdx, y2: sy1, class: 'dimension-ext' }));
+    group.appendChild(el('line', { x1: sx2, y1: sy2, x2: sdx, y2: sy2, class: 'dimension-ext' }));
     group.appendChild(el('line', { x1: sdx, y1: sy1, x2: sdx, y2: sy2, class: className }));
     addTick(group, sdx, sy1, axis, className);
     addTick(group, sdx, sy2, axis, className);
