@@ -74,3 +74,5 @@ body {
   stroke: #ffffff;
   stroke-width: 2;
 }
+
+.selected-item-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }

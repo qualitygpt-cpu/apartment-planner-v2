@@ -8,6 +8,7 @@ const treeContainer = document.getElementById('treeContainer');
 const statusText = document.getElementById('statusText');
 const toggleDimensionsBtn = document.getElementById('toggleDimensionsBtn');
 const toggleItemDimensionsBtn = document.getElementById('toggleItemDimensionsBtn');
+const selectedItemTools = document.getElementById('selectedItemTools');
 
 const model = createModel();
 
@@ -44,32 +45,41 @@ function snapSelectedToNearestWall() {
     return;
   }
 
-  const cx = obj.x + obj.width / 2;
-  const cy = obj.y + obj.height / 2;
   const room = model.state.rooms.find((r) => r.id === obj.roomId);
   if (!room) return;
 
-  const candidates = [
-    { side: 'left', dist: Math.abs(cx - room.x), x: room.x, y: obj.y },
-    { side: 'right', dist: Math.abs(room.x + room.width - cx), x: room.x + room.width - obj.width, y: obj.y },
-    { side: 'top', dist: Math.abs(cy - room.y), x: obj.x, y: room.y },
-    { side: 'bottom', dist: Math.abs(room.y + room.height - cy), x: obj.x, y: room.y + room.height - obj.height }
-  ];
+  const threshold = 0.25;
+  const dLeft = Math.abs(obj.x - room.x);
+  const dRight = Math.abs((room.x + room.width) - (obj.x + obj.width));
+  const dTop = Math.abs(obj.y - room.y);
+  const dBottom = Math.abs((room.y + room.height) - (obj.y + obj.height));
 
-  candidates.sort((a, b) => a.dist - b.dist);
-  const nearest = candidates[0];
-  obj.x = nearest.x;
-  obj.y = nearest.y;
+  const closeSides = [];
+  if (dLeft <= threshold) closeSides.push('left');
+  if (dRight <= threshold) closeSides.push('right');
+  if (dTop <= threshold) closeSides.push('top');
+  if (dBottom <= threshold) closeSides.push('bottom');
 
-  if (nearest.side === 'left' || nearest.side === 'right') {
+  if (!closeSides.length) {
+    statusText.textContent = 'Объект должен быть не дальше 0.25 м от стены';
+    return;
+  }
+
+  if (closeSides.includes('left')) obj.x = room.x;
+  if (closeSides.includes('right')) obj.x = room.x + room.width - obj.width;
+  if (closeSides.includes('top')) obj.y = room.y;
+  if (closeSides.includes('bottom')) obj.y = room.y + room.height - obj.height;
+
+  if (closeSides.includes('left') || closeSides.includes('right')) {
     obj.rotation = normalizeAngle(Math.round((obj.rotation || 0) / 90) * 90);
-  } else {
+  }
+  if (closeSides.includes('top') || closeSides.includes('bottom')) {
     obj.rotation = normalizeAngle(90 + Math.round(((obj.rotation || 0) - 90) / 90) * 90);
   }
 
   persistLayout(model.state.items);
   rerender();
-  statusText.textContent = `Объект прижат к стене (${nearest.side})`;
+  statusText.textContent = `Привязка к стене: ${closeSides.join('+')}`;
 }
 
 function formatFurnitureExport(items) {
@@ -93,6 +103,11 @@ function syncDimensionButtons() {
   toggleItemDimensionsBtn.textContent = `Размеры мебели: ${model.showItemDimensions ? 'вкл' : 'выкл'}`;
 }
 
+function syncSelectedToolsVisibility() {
+  const obj = getSelectedMovableItem();
+  selectedItemTools.hidden = !(model.mode === 'edit' && obj);
+}
+
 function rerender() {
   renderPlan(svg, model);
   renderTree(treeContainer, model, (id) => {
@@ -100,6 +115,7 @@ function rerender() {
     rerender();
   });
   syncDimensionButtons();
+  syncSelectedToolsVisibility();
 }
 
 const controls = setupInteractions({
