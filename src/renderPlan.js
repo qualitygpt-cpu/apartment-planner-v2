@@ -211,10 +211,34 @@ export function renderPlan(svg, model) {
     const centerX = (item.x + item.width / 2) * scale;
     const centerY = (item.y + item.height / 2) * scale;
     g.setAttribute('transform', `rotate(${item.rotation} ${centerX} ${centerY})`);
-    const style = TEXTURES[item.textureId] || (item.category === 'appliance' ? TEXTURES.defaultAppliance : TEXTURES.defaultFurniture);
-    const rect = addRect(g, item, scale, `${item.category} item`, selectedId);
-    rect.setAttribute('fill', style.fill);
-    rect.setAttribute('stroke', style.stroke);
+    if (item.id === 'f-sofa') {
+      const r = rectToSvg(item, scale);
+      const image = el('image', {
+        x: r.x,
+        y: r.y,
+        width: r.width,
+        height: r.height,
+        href: './assets/sofa-corner.svg',
+        preserveAspectRatio: 'none'
+      });
+      g.appendChild(image);
+      const border = el('rect', {
+        x: r.x,
+        y: r.y,
+        width: r.width,
+        height: r.height,
+        fill: 'none',
+        stroke: '#3b2e2a',
+        'stroke-width': 1
+      });
+      if (selectedId === item.id) border.classList.add('selected');
+      g.appendChild(border);
+    } else {
+      const style = TEXTURES[item.textureId] || (item.category === 'appliance' ? TEXTURES.defaultAppliance : TEXTURES.defaultFurniture);
+      const rect = addRect(g, item, scale, `${item.category} item`, selectedId);
+      rect.setAttribute('fill', style.fill);
+      rect.setAttribute('stroke', style.stroke);
+    }
     const t = el('text', { x: centerX, y: centerY, class: 'item-label', 'text-anchor': 'middle' });
     t.textContent = item.name;
     g.appendChild(t);
