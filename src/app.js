@@ -40,46 +40,74 @@ function snapSelectedToNearestWall() {
     statusText.textContent = 'Выберите movable-объект в режиме редактирования';
     return;
   }
-  if (!obj.snapToWall) {
-    statusText.textContent = 'Для этого объекта привязка к стене отключена';
+  const rotation = normalizeAngle(obj.rotation || 0);
+  const isAxisAligned = Math.abs(rotation % 90) < 1e-6;
+  if (!isAxisAligned) {
+    statusText.textContent = 'сначала вертикализируйте';
     return;
   }
 
-  const room = model.state.rooms.find((r) => r.id === obj.roomId);
-  if (!room) return;
+  const threshold = 0.4;
+  const epsilon = 1e-9;
+  const objMinX = obj.x;
+  const objMaxX = obj.x + obj.width;
+  const objMinY = obj.y;
+  const objMaxY = obj.y + obj.height;
 
-  const threshold = 0.25;
-  const dLeft = Math.abs(obj.x - room.x);
-  const dRight = Math.abs((room.x + room.width) - (obj.x + obj.width));
-  const dTop = Math.abs(obj.y - room.y);
-  const dBottom = Math.abs((room.y + room.height) - (obj.y + obj.height));
-
-  const closeSides = [];
-  if (dLeft <= threshold) closeSides.push('left');
-  if (dRight <= threshold) closeSides.push('right');
-  if (dTop <= threshold) closeSides.push('top');
-  if (dBottom <= threshold) closeSides.push('bottom');
-
-  if (!closeSides.length) {
-    statusText.textContent = 'Объект должен быть не дальше 0.25 м от стены';
+  const centerX = obj.x + obj.width / 2;
+  const centerY = obj.y + obj.height / 2;
+  const roomByCenter = model.state.rooms.find((r) => (
+    centerX >= r.x
+    && centerX <= r.x + r.width
+    && centerY >= r.y
+    && centerY <= r.y + r.height
+  ));
+  const room = roomByCenter || model.state.rooms.find((r) => r.id === obj.roomId);
+  if (!room) {
+    statusText.textContent = 'Не удалось определить помещение';
     return;
   }
 
-  if (closeSides.includes('left')) obj.x = room.x;
-  if (closeSides.includes('right')) obj.x = room.x + room.width - obj.width;
-  if (closeSides.includes('top')) obj.y = room.y;
-  if (closeSides.includes('bottom')) obj.y = room.y + room.height - obj.height;
+  const roomMinX = room.x;
+  const roomMaxX = room.x + room.width;
+  const roomMinY = room.y;
+  const roomMaxY = room.y + room.height;
 
-  if (closeSides.includes('left') || closeSides.includes('right')) {
-    obj.rotation = normalizeAngle(Math.round((obj.rotation || 0) / 90) * 90);
+  const verticalCandidates = [
+    { side: 'left', targetX: roomMinX, distance: Math.abs(objMinX - roomMinX) },
+    { side: 'right', targetX: roomMaxX - obj.width, distance: Math.abs(roomMaxX - objMaxX) }
+  ].filter((candidate) => candidate.distance <= threshold + epsilon);
+
+  const horizontalCandidates = [
+    { side: 'top', targetY: roomMinY, distance: Math.abs(objMinY - roomMinY) },
+    { side: 'bottom', targetY: roomMaxY - obj.height, distance: Math.abs(roomMaxY - objMaxY) }
+  ].filter((candidate) => candidate.distance <= threshold + epsilon);
+
+  if (!verticalCandidates.length && !horizontalCandidates.length) {
+    statusText.textContent = 'Объект должен быть не дальше 0.4 м от стены';
+    return;
   }
-  if (closeSides.includes('top') || closeSides.includes('bottom')) {
-    obj.rotation = normalizeAngle(90 + Math.round(((obj.rotation || 0) - 90) / 90) * 90);
+
+  const snappedSides = [];
+  if (verticalCandidates.length) {
+    const bestVertical = verticalCandidates.reduce((best, current) => (
+      current.distance < best.distance ? current : best
+    ));
+    obj.x = bestVertical.targetX;
+    snappedSides.push(bestVertical.side);
+  }
+
+  if (horizontalCandidates.length) {
+    const bestHorizontal = horizontalCandidates.reduce((best, current) => (
+      current.distance < best.distance ? current : best
+    ));
+    obj.y = bestHorizontal.targetY;
+    snappedSides.push(bestHorizontal.side);
   }
 
   persistLayout(model.state.items);
   rerender();
-  statusText.textContent = `Привязка к стене: ${closeSides.join('+')}`;
+  statusText.textContent = `Привязка к стене: ${snappedSides.join('+')}`;
 }
 
 function formatFurnitureExport(items) {
@@ -105,7 +133,7 @@ function syncDimensionButtons() {
 
 function syncSelectedToolsVisibility() {
   const obj = getSelectedMovableItem();
-  selectedItemTools.hidden = !(model.mode === 'edit' && obj);
+  selectedItemTools.hidden = !obj;
 }
 
 function rerender() {
