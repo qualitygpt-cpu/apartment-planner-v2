@@ -54,7 +54,15 @@ function snapSelectedToNearestWall() {
   const objMinY = obj.y;
   const objMaxY = obj.y + obj.height;
 
-  const room = model.state.rooms.find((r) => r.id === obj.roomId);
+  const centerX = obj.x + obj.width / 2;
+  const centerY = obj.y + obj.height / 2;
+  const roomByCenter = model.state.rooms.find((r) => (
+    centerX >= r.x
+    && centerX <= r.x + r.width
+    && centerY >= r.y
+    && centerY <= r.y + r.height
+  ));
+  const room = roomByCenter || model.state.rooms.find((r) => r.id === obj.roomId);
   if (!room) {
     statusText.textContent = 'Не удалось определить помещение';
     return;
