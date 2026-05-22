@@ -136,12 +136,47 @@ function syncSelectedToolsVisibility() {
   selectedItemTools.hidden = !obj;
 }
 
+function editObjectDimensionsMm(id) {
+  const obj = getObjectById(model, id);
+  if (!obj) return;
+  if (obj.type === 'room' || obj.type === 'wall' || typeof obj.width !== 'number' || typeof obj.height !== 'number') {
+    statusText.textContent = 'Для этого объекта редактирование габаритов недоступно';
+    return;
+  }
+
+  const currentWidthMm = Math.round(obj.width * 1000);
+  const currentHeightMm = Math.round(obj.height * 1000);
+
+  const widthInput = prompt(`Ширина "${obj.name || obj.label}" (мм):`, String(currentWidthMm));
+  if (widthInput === null) return;
+  const heightInput = prompt(`Высота "${obj.name || obj.label}" (мм):`, String(currentHeightMm));
+  if (heightInput === null) return;
+
+  const nextWidthMm = Number(widthInput.replace(',', '.'));
+  const nextHeightMm = Number(heightInput.replace(',', '.'));
+  if (!Number.isFinite(nextWidthMm) || !Number.isFinite(nextHeightMm) || nextWidthMm <= 0 || nextHeightMm <= 0) {
+    statusText.textContent = 'Введите положительные числовые размеры в мм';
+    return;
+  }
+
+  obj.width = nextWidthMm / 1000;
+  obj.height = nextHeightMm / 1000;
+  if (obj.movable) persistLayout(model.state.items);
+  statusText.textContent = `Габариты обновлены: ${Math.round(nextWidthMm)}×${Math.round(nextHeightMm)} мм`;
+  rerender();
+}
+
 function rerender() {
   renderPlan(svg, model);
-  renderTree(treeContainer, model, (id) => {
-    model.selectedId = id;
-    rerender();
-  });
+  renderTree(
+    treeContainer,
+    model,
+    (id) => {
+      model.selectedId = id;
+      rerender();
+    },
+    (id) => editObjectDimensionsMm(id)
+  );
   syncDimensionButtons();
   syncSelectedToolsVisibility();
 }

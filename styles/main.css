@@ -40,6 +40,9 @@ body {
 .tree-container h4 { margin: 8px 0 4px; font-size: 13px; }
 .tree-container ul { margin: 0; padding-left: 20px; }
 .tree-container li, .tree-container summary { cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+.tree-container li { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tree-container li [data-id] { flex: 1; }
+.tree-edit-size-btn { border: 1px solid #9aa9bb; background: #fff; padding: 2px 6px; font-size: 11px; cursor: pointer; }
 
 .dimension-group {
   pointer-events: none;

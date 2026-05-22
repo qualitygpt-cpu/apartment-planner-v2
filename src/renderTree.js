@@ -1,4 +1,4 @@
-export function renderTree(container, model, onSelect) {
+export function renderTree(container, model, onSelect, onEditDimensions) {
   const byRoom = Object.fromEntries(model.state.rooms.map((r) => [r.id, { room: r, furniture: [], appliances: [], engineering: [], openings: [] }]));
   model.state.items.forEach((i) => (i.category === 'appliance' ? byRoom[i.roomId].appliances : byRoom[i.roomId].furniture).push(i));
   model.state.engineering.forEach((e) => byRoom[e.roomId]?.engineering.push(e));
@@ -28,6 +28,11 @@ export function renderTree(container, model, onSelect) {
     e.stopPropagation();
     onSelect(n.dataset.id);
   }));
+
+  container.querySelectorAll('[data-dim-id]').forEach((n) => n.addEventListener('click', (e) => {
+    e.stopPropagation();
+    onEditDimensions(n.dataset.dimId);
+  }));
 }
 
 function block(title, items, selectedId) {
@@ -39,11 +44,25 @@ function block(title, items, selectedId) {
   const ul = document.createElement('ul');
   items.forEach((item) => {
     const li = document.createElement('li');
-    li.textContent = item.name || item.label;
-    li.dataset.id = item.id;
+    const label = document.createElement('span');
+    label.textContent = item.name || item.label;
+    label.dataset.id = item.id;
+    li.appendChild(label);
+    if (canEditDimensions(item)) {
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'tree-edit-size-btn';
+      editBtn.textContent = 'Габариты';
+      editBtn.dataset.dimId = item.id;
+      li.appendChild(editBtn);
+    }
     if (selectedId === item.id) li.className = 'selected-tree';
     ul.appendChild(li);
   });
   section.appendChild(ul);
   return section;
+}
+
+function canEditDimensions(item) {
+  return !['room', 'wall'].includes(item.type) && typeof item.width === 'number' && typeof item.height === 'number';
 }
