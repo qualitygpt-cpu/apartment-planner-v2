@@ -218,7 +218,7 @@ export function renderPlan(svg, model) {
         y: r.y,
         width: r.width,
         height: r.height,
-        href: './assets/sofa-corner.svg',
+        href: './assets/sofa-corner.png',
         preserveAspectRatio: 'none'
       });
       g.appendChild(image);
