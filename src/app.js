@@ -40,54 +40,43 @@ function snapSelectedToNearestWall() {
     statusText.textContent = 'Выберите movable-объект в режиме редактирования';
     return;
   }
-  const threshold = 0.25;
+  const rotation = normalizeAngle(obj.rotation || 0);
+  const isAxisAligned = Math.abs(rotation % 90) < 1e-6;
+  if (!isAxisAligned) {
+    statusText.textContent = 'сначала вертикализируйте';
+    return;
+  }
+
+  const threshold = 0.4;
   const epsilon = 1e-9;
   const objMinX = obj.x;
   const objMaxX = obj.x + obj.width;
   const objMinY = obj.y;
   const objMaxY = obj.y + obj.height;
 
-  const verticalCandidates = [];
-  const horizontalCandidates = [];
+  const room = model.state.rooms.find((r) => r.id === obj.roomId);
+  if (!room) {
+    statusText.textContent = 'Не удалось определить помещение';
+    return;
+  }
 
-  const overlaps = (a1, a2, b1, b2) => Math.max(a1, b1) <= Math.min(a2, b2) + epsilon;
+  const roomMinX = room.x;
+  const roomMaxX = room.x + room.width;
+  const roomMinY = room.y;
+  const roomMaxY = room.y + room.height;
 
-  model.state.walls.forEach((wall) => {
-    const wallMinX = wall.x;
-    const wallMaxX = wall.x + wall.width;
-    const wallMinY = wall.y;
-    const wallMaxY = wall.y + wall.height;
+  const verticalCandidates = [
+    { side: 'left', targetX: roomMinX, distance: Math.abs(objMinX - roomMinX) },
+    { side: 'right', targetX: roomMaxX - obj.width, distance: Math.abs(roomMaxX - objMaxX) }
+  ].filter((candidate) => candidate.distance <= threshold + epsilon);
 
-    if (wall.width <= wall.height) {
-      if (!overlaps(objMinY, objMaxY, wallMinY, wallMaxY)) return;
-
-      const distanceToLeftFace = Math.abs(objMaxX - wallMinX);
-      if (distanceToLeftFace <= threshold) {
-        verticalCandidates.push({ side: 'right', targetX: wallMinX - obj.width, distance: distanceToLeftFace });
-      }
-
-      const distanceToRightFace = Math.abs(objMinX - wallMaxX);
-      if (distanceToRightFace <= threshold) {
-        verticalCandidates.push({ side: 'left', targetX: wallMaxX, distance: distanceToRightFace });
-      }
-      return;
-    }
-
-    if (!overlaps(objMinX, objMaxX, wallMinX, wallMaxX)) return;
-
-    const distanceToTopFace = Math.abs(objMaxY - wallMinY);
-    if (distanceToTopFace <= threshold) {
-      horizontalCandidates.push({ side: 'bottom', targetY: wallMinY - obj.height, distance: distanceToTopFace });
-    }
-
-    const distanceToBottomFace = Math.abs(objMinY - wallMaxY);
-    if (distanceToBottomFace <= threshold) {
-      horizontalCandidates.push({ side: 'top', targetY: wallMaxY, distance: distanceToBottomFace });
-    }
-  });
+  const horizontalCandidates = [
+    { side: 'top', targetY: roomMinY, distance: Math.abs(objMinY - roomMinY) },
+    { side: 'bottom', targetY: roomMaxY - obj.height, distance: Math.abs(roomMaxY - objMaxY) }
+  ].filter((candidate) => candidate.distance <= threshold + epsilon);
 
   if (!verticalCandidates.length && !horizontalCandidates.length) {
-    statusText.textContent = 'Объект должен быть не дальше 0.25 м от стены';
+    statusText.textContent = 'Объект должен быть не дальше 0.4 м от стены';
     return;
   }
 
