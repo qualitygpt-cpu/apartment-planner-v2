@@ -89,8 +89,8 @@ export const APARTMENT_DATA = {
       x: 8.09,
       y: 2.2,
       width: 1.2,
-      height: 0.6,
-      area: 0.72,
+      height: 0.98,
+      area: 1.18,
       fill: '#f3f6ff',
       label: '5. Уборная',
       children: []
@@ -271,19 +271,19 @@ export const APARTMENT_DATA = {
       wallKind: 'partition',
       x: 8.09,
       y: 2.15,
-      width: 1.2,
+      width: 1.71,
       height: 0.05,
       thickness: 0.05,
       fixed: true
     },
     {
-      id: 'w-toilet-kitchen',
+      id: 'w-toilet-shaft',
       type: 'wall',
       wallKind: 'partition',
-      x: 8.09,
-      y: 2.8,
-      width: 1.2,
-      height: 0.05,
+      x: 9.29,
+      y: 2.2,
+      width: 0.05,
+      height: 0.98,
       thickness: 0.05,
       fixed: true
     },
@@ -382,24 +382,37 @@ export const APARTMENT_DATA = {
 
   windows: [
     {
-      id: 'win-living-balcony',
-      type: 'window',
-      x: 0.85,
-      y: 6.21,
-      width: 1.35,
-      height: 0.17,
-      roomId: 'room-living',
-      label: 'Окно большой комнаты на балкон'
-    },
-    {
       id: 'win-living-balcony-door',
       type: 'window',
-      x: 2.35,
+      x: 0.85,
       y: 6.21,
       width: 0.8,
       height: 0.17,
       roomId: 'room-living',
-      label: 'Балконная дверь'
+      label: 'Балконная дверь',
+      windowKind: 'balconyDoor'
+    },
+    {
+      id: 'win-living-balcony-fixed',
+      type: 'window',
+      x: 1.8,
+      y: 6.21,
+      width: 0.675,
+      height: 0.17,
+      roomId: 'room-living',
+      label: 'Окно большой комнаты без открывающейся рамы',
+      windowKind: 'fixed'
+    },
+    {
+      id: 'win-living-balcony-openable',
+      type: 'window',
+      x: 2.475,
+      y: 6.21,
+      width: 0.675,
+      height: 0.17,
+      roomId: 'room-living',
+      label: 'Окно большой комнаты с открывающейся рамой',
+      windowKind: 'openable'
     },
     {
       id: 'win-small',
@@ -425,26 +438,37 @@ export const APARTMENT_DATA = {
 
   engineering: [
     {
+      id: 'eng-riser-living',
+      type: 'riser',
+      roomId: 'room-living',
+      x: 3.6575,
+      y: 6.1475,
+      width: 0.025,
+      height: 0.025,
+      fixed: true,
+      label: 'Стояк большой комнаты'
+    },
+    {
+      id: 'eng-riser-small',
+      type: 'riser',
+      roomId: 'room-small',
+      x: 4.1275,
+      y: 6.1475,
+      width: 0.025,
+      height: 0.025,
+      fixed: true,
+      label: 'Стояк малой комнаты'
+    },
+    {
       id: 'eng-riser-kitchen',
       type: 'riser',
       roomId: 'room-kitchen',
-      x: 9.25,
-      y: 4.35,
-      width: 0.25,
-      height: 0.25,
+      x: 7.1175,
+      y: 6.1475,
+      width: 0.025,
+      height: 0.025,
       fixed: true,
       label: 'Стояк кухни'
-    },
-    {
-      id: 'eng-riser-bath',
-      type: 'riser',
-      roomId: 'room-bath',
-      x: 8.15,
-      y: 1.75,
-      width: 0.2,
-      height: 0.2,
-      fixed: true,
-      label: 'Стояк санузла'
     },
     {
       id: 'eng-pipe-bath',
