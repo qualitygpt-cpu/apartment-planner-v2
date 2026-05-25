@@ -1,4 +1,4 @@
-import { clamp, rotateByStep } from './geometry.js';
+import { clamp, rotateByStep, applyRotationWithDimensions } from './geometry.js';
 import { getObjectById, persistLayout } from './model.js';
 
 export function setupInteractions({ svg, model, rerender, setStatus }) {
@@ -73,7 +73,7 @@ export function setupInteractions({ svg, model, rerender, setStatus }) {
     if (e.key.toLowerCase() !== 'r' || !model.selectedId || model.mode !== 'edit') return;
     const obj = getObjectById(model, model.selectedId);
     if (!obj?.movable) return;
-    obj.rotation = rotateByStep(obj.rotation, 15);
+    applyRotationWithDimensions(obj, rotateByStep(obj.rotation, 15));
     persistLayout(model.state.items);
     rerender();
   });
