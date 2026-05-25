@@ -2,6 +2,7 @@ import { createModel, resetFurniture, getObjectById, persistLayout } from './mod
 import { renderPlan } from './renderPlan.js';
 import { renderTree } from './renderTree.js';
 import { setupInteractions } from './interactions.js';
+import { applyRotationWithDimensions } from './geometry.js';
 
 const svg = document.getElementById('planSvg');
 const treeContainer = document.getElementById('treeContainer');
@@ -29,7 +30,7 @@ function applyRotation(updater) {
     statusText.textContent = 'Выберите movable-объект в режиме редактирования';
     return;
   }
-  obj.rotation = normalizeAngle(updater(obj.rotation || 0));
+  applyRotationWithDimensions(obj, updater(obj.rotation || 0));
   persistLayout(model.state.items);
   rerender();
 }
