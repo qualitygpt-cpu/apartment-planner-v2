@@ -1,20 +1,11 @@
 # apartment-furniture-planner (MVP v1)
 
-Первая статическая версия без зависимостей (без React/Vite/TypeScript/npm). Проект — это HTML + CSS + JavaScript ES modules + SVG, готовый для запуска локально и через GitHub Pages.
+Первая статическая версия без внешних зависимостей. Проект — это полностью локальный HTML + CSS + JavaScript ES modules + SVG.
 
 ## Запуск локально
 
-```bash
-python3 -m http.server 5173
-```
+Откройте файл `index.html` напрямую в браузере.
 
-Откройте: `http://localhost:5173`
-
-## Запуск через GitHub Pages
-
-1. Запушьте репозиторий в GitHub.
-2. В `Settings -> Pages` выберите ветку (обычно `main`) и папку `/ (root)`.
-3. Дождитесь публикации и откройте URL GitHub Pages.
 
 ## Где менять данные
 

@@ -2,12 +2,14 @@ import { createModel, resetFurniture, getObjectById, persistLayout } from './mod
 import { renderPlan } from './renderPlan.js';
 import { renderTree } from './renderTree.js';
 import { setupInteractions } from './interactions.js';
+import { applyRotationWithDimensions } from './geometry.js';
 
 const svg = document.getElementById('planSvg');
 const treeContainer = document.getElementById('treeContainer');
 const statusText = document.getElementById('statusText');
 const toggleDimensionsBtn = document.getElementById('toggleDimensionsBtn');
 const toggleItemDimensionsBtn = document.getElementById('toggleItemDimensionsBtn');
+const toggleDoorSwingsBtn = document.getElementById('toggleDoorSwingsBtn');
 const selectedItemTools = document.getElementById('selectedItemTools');
 
 const model = createModel();
@@ -29,7 +31,7 @@ function applyRotation(updater) {
     statusText.textContent = 'Выберите movable-объект в режиме редактирования';
     return;
   }
-  obj.rotation = normalizeAngle(updater(obj.rotation || 0));
+  applyRotationWithDimensions(obj, updater(obj.rotation || 0));
   persistLayout(model.state.items);
   rerender();
 }
@@ -126,9 +128,10 @@ async function exportFurnitureLayout() {
   statusText.textContent = 'Экспорт мебели скопирован в буфер';
 }
 
-function syncDimensionButtons() {
+function syncToolbarButtons() {
   toggleDimensionsBtn.textContent = `Размеры: ${model.showStructureDimensions ? 'вкл' : 'выкл'}`;
   toggleItemDimensionsBtn.textContent = `Размеры мебели: ${model.showItemDimensions ? 'вкл' : 'выкл'}`;
+  toggleDoorSwingsBtn.textContent = `Двери: ${model.showDoorSwings ? 'вкл' : 'выкл'}`;
 }
 
 function syncSelectedToolsVisibility() {
@@ -177,7 +180,7 @@ function rerender() {
     },
     (id) => editObjectDimensionsMm(id)
   );
-  syncDimensionButtons();
+  syncToolbarButtons();
   syncSelectedToolsVisibility();
 }
 
@@ -253,6 +256,11 @@ toggleDimensionsBtn.addEventListener('click', () => {
 
 toggleItemDimensionsBtn.addEventListener('click', () => {
   model.showItemDimensions = !model.showItemDimensions;
+  rerender();
+});
+
+toggleDoorSwingsBtn.addEventListener('click', () => {
+  model.showDoorSwings = !model.showDoorSwings;
   rerender();
 });
 
