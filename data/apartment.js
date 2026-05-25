@@ -481,34 +481,40 @@ export const APARTMENT_DATA = {
       id: 'eng-radiator-living',
       type: 'radiator',
       roomId: 'room-living',
-      x: 1.0,
-      y: 5.85,
-      width: 1.2,
-      height: 0.15,
+      x: 1.345,
+      y: 6.114,
+      width: 1.311,
+      height: 0.096,
       fixed: true,
-      label: 'Радиатор большой комнаты'
+      label: 'Радиатор большой комнаты',
+      model: 'Конвектор Универсал КСК20-1311 К(П)',
+      sourceNote: 'Размер принят по строке КСК20-1311 К(П) из таблицы на изображении: длина кожуха 1311 мм, глубина 96 мм.'
     },
     {
       id: 'eng-radiator-small',
       type: 'radiator',
       roomId: 'room-small',
-      x: 4.65,
-      y: 5.85,
-      width: 1.0,
-      height: 0.15,
+      x: 4.701,
+      y: 6.114,
+      width: 1.049,
+      height: 0.096,
       fixed: true,
-      label: 'Радиатор малой комнаты'
+      label: 'Радиатор малой комнаты',
+      model: 'Конвектор Универсал КСК20-1049 К(П)',
+      sourceNote: 'Размер принят по строке КСК20-1049 К(П) из таблицы на изображении: длина кожуха 1049 мм, глубина 96 мм.'
     },
     {
       id: 'eng-radiator-kitchen',
       type: 'radiator',
       roomId: 'room-kitchen',
-      x: 7.65,
-      y: 5.85,
-      width: 1.0,
-      height: 0.15,
+      x: 7.758,
+      y: 6.114,
+      width: 0.934,
+      height: 0.096,
       fixed: true,
-      label: 'Радиатор кухни'
+      label: 'Радиатор кухни',
+      model: 'Конвектор Универсал КСК20-934 К(П)',
+      sourceNote: 'Размер принят по ближайшему типоразмеру из таблицы на изображении: длина кожуха 934 мм, глубина 96 мм.'
     }
   ],
 
