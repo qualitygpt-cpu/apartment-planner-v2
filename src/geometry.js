@@ -43,5 +43,5 @@ export function applyRotationWithDimensions(item, nextRotation) {
     item.y = centerY - item.height / 2;
   }
 
-  item.rotation = next;
+  item.rotation = nextAligned ? 0 : next;
 }
