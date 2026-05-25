@@ -17,6 +17,20 @@ function addRect(group, obj, scale, cssClass, selectedId) {
   return rect;
 }
 
+
+function addRiserCircle(group, eng, scale, selectedId) {
+  const circle = el('circle', {
+    cx: (eng.x + eng.width / 2) * scale,
+    cy: (eng.y + eng.height / 2) * scale,
+    r: (eng.width / 2) * scale,
+    class: `engineering ${eng.type}`,
+    'data-id': eng.id
+  });
+  if (selectedId === eng.id) circle.classList.add('selected');
+  group.appendChild(circle);
+  return circle;
+}
+
 function metersLabel(value) {
   return `${Math.max(0, value).toFixed(2)} м`;
 }
@@ -204,7 +218,13 @@ export function renderPlan(svg, model) {
   state.walls.forEach((wall) => addRect(root, wall, scale, wall.wallKind === 'bearing' ? 'wall-bearing' : 'wall-partition', selectedId));
   state.doorOpenings.forEach((door) => addRect(root, door, scale, 'opening-door', selectedId));
   state.windows.forEach((win) => addRect(root, win, scale, 'opening-window', selectedId));
-  state.engineering.forEach((eng) => addRect(root, eng, scale, `engineering ${eng.type}`, selectedId));
+  state.engineering.forEach((eng) => {
+    if (eng.type === 'riser') {
+      addRiserCircle(root, eng, scale, selectedId);
+      return;
+    }
+    addRect(root, eng, scale, `engineering ${eng.type}`, selectedId);
+  });
 
   [...state.items].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0)).forEach((item) => {
     const g = el('g', { 'data-id': item.id, class: 'movable-wrap' });
