@@ -286,6 +286,17 @@ export const APARTMENT_DATA = {
       height: 0.98,
       thickness: 0.05,
       fixed: true
+    },
+    {
+      id: 'w-toilet-shaft',
+      type: 'wall',
+      wallKind: 'partition',
+      x: 9.29,
+      y: 2.2,
+      width: 0.05,
+      height: 0.6,
+      thickness: 0.05,
+      fixed: true
     }
   ],
 
