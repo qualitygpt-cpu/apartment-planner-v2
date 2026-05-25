@@ -79,3 +79,22 @@ body {
 }
 
 .selected-item-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+
+.door-swing-group {
+  pointer-events: none;
+}
+
+.door-leaf-open {
+  stroke: #2563eb;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.door-swing-arc {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 4 3;
+}
