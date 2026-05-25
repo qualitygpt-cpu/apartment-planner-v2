@@ -88,9 +88,9 @@ export const APARTMENT_DATA = {
       type: 'toilet',
       x: 8.09,
       y: 2.2,
-      width: 1.66,
-      height: 0.6,
-      area: 1.0,
+      width: 1.2,
+      height: 0.98,
+      area: 1.18,
       fill: '#f3f6ff',
       label: '5. Уборная',
       children: []
@@ -103,7 +103,7 @@ export const APARTMENT_DATA = {
       x: 3.99,
       y: 0.4,
       width: 2.82,
-      height: 1.56,
+      height: 1.61,
       area: 4.4,
       fill: '#f7f7f7',
       label: '6. Коридор',
@@ -116,7 +116,7 @@ export const APARTMENT_DATA = {
       type: 'corridor',
       x: 6.98,
       y: 0.4,
-      width: 1.08,
+      width: 1.06,
       height: 2.78,
       area: 3.0,
       fill: '#f7f7f7',
@@ -271,19 +271,19 @@ export const APARTMENT_DATA = {
       wallKind: 'partition',
       x: 8.09,
       y: 2.15,
-      width: 1.66,
+      width: 1.71,
       height: 0.05,
       thickness: 0.05,
       fixed: true
     },
     {
-      id: 'w-toilet-kitchen',
+      id: 'w-toilet-shaft',
       type: 'wall',
       wallKind: 'partition',
-      x: 8.09,
-      y: 2.8,
-      width: 1.66,
-      height: 0.05,
+      x: 9.29,
+      y: 2.2,
+      width: 0.05,
+      height: 0.98,
       thickness: 0.05,
       fixed: true
     }
@@ -299,7 +299,8 @@ export const APARTMENT_DATA = {
       height: 0.17,
       roomA: 'outside',
       roomB: 'room-corridor-6',
-      label: 'Входная дверь'
+      label: 'Входная дверь',
+      swing: { enabled: true, hinge: 'start', openSign: -1, maxAngleDeg: 150 }
     },
     {
       id: 'd-living-corridor6',
@@ -310,7 +311,8 @@ export const APARTMENT_DATA = {
       height: 0.9,
       roomA: 'room-living',
       roomB: 'room-corridor-6',
-      label: 'Дверь в большую комнату'
+      label: 'Дверь в большую комнату',
+      swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
       id: 'd-small-corridor6',
@@ -321,7 +323,8 @@ export const APARTMENT_DATA = {
       height: 0.05,
       roomA: 'room-small',
       roomB: 'room-corridor-6',
-      label: 'Дверь в малую комнату'
+      label: 'Дверь в малую комнату',
+      swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
       id: 'd-corridor6-corridor7',
@@ -332,7 +335,8 @@ export const APARTMENT_DATA = {
       height: 0.9,
       roomA: 'room-corridor-6',
       roomB: 'room-corridor-7',
-      label: 'Проход между коридорами'
+      label: 'Проход между коридорами',
+      swing: { enabled: true, hinge: 'start', openSign: -1, maxAngleDeg: 150 }
     },
     {
       id: 'd-kitchen-corridor7',
@@ -343,7 +347,8 @@ export const APARTMENT_DATA = {
       height: 0.05,
       roomA: 'room-kitchen',
       roomB: 'room-corridor-7',
-      label: 'Дверь в кухню'
+      label: 'Дверь в кухню',
+      swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
       id: 'd-bath-corridor7',
@@ -354,7 +359,8 @@ export const APARTMENT_DATA = {
       height: 0.75,
       roomA: 'room-bath',
       roomB: 'room-corridor-7',
-      label: 'Дверь в ванную'
+      label: 'Дверь в ванную',
+      swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
       id: 'd-toilet-corridor7',
@@ -362,33 +368,47 @@ export const APARTMENT_DATA = {
       x: 8.04,
       y: 2.25,
       width: 0.05,
-      height: 0.5,
+      height: 0.75,
       roomA: 'room-toilet',
       roomB: 'room-corridor-7',
-      label: 'Дверь в уборную'
+      label: 'Дверь в уборную',
+      swing: { enabled: true, hinge: 'end', openSign: -1, maxAngleDeg: 150 }
     }
   ],
 
   windows: [
     {
-      id: 'win-living-balcony',
-      type: 'window',
-      x: 0.85,
-      y: 6.21,
-      width: 1.35,
-      height: 0.17,
-      roomId: 'room-living',
-      label: 'Окно большой комнаты на балкон'
-    },
-    {
       id: 'win-living-balcony-door',
       type: 'window',
-      x: 2.35,
+      x: 0.85,
       y: 6.21,
       width: 0.8,
       height: 0.17,
       roomId: 'room-living',
-      label: 'Балконная дверь'
+      label: 'Балконная дверь',
+      windowKind: 'balconyDoor'
+    },
+    {
+      id: 'win-living-balcony-fixed',
+      type: 'window',
+      x: 1.8,
+      y: 6.21,
+      width: 0.675,
+      height: 0.17,
+      roomId: 'room-living',
+      label: 'Окно большой комнаты без открывающейся рамы',
+      windowKind: 'fixed'
+    },
+    {
+      id: 'win-living-balcony-openable',
+      type: 'window',
+      x: 2.475,
+      y: 6.21,
+      width: 0.675,
+      height: 0.17,
+      roomId: 'room-living',
+      label: 'Окно большой комнаты с открывающейся рамой',
+      windowKind: 'openable'
     },
     {
       id: 'win-small',
@@ -414,26 +434,37 @@ export const APARTMENT_DATA = {
 
   engineering: [
     {
+      id: 'eng-riser-living',
+      type: 'riser',
+      roomId: 'room-living',
+      x: 3.6575,
+      y: 6.1475,
+      width: 0.025,
+      height: 0.025,
+      fixed: true,
+      label: 'Стояк большой комнаты'
+    },
+    {
+      id: 'eng-riser-small',
+      type: 'riser',
+      roomId: 'room-small',
+      x: 4.1275,
+      y: 6.1475,
+      width: 0.025,
+      height: 0.025,
+      fixed: true,
+      label: 'Стояк малой комнаты'
+    },
+    {
       id: 'eng-riser-kitchen',
       type: 'riser',
       roomId: 'room-kitchen',
-      x: 9.25,
-      y: 4.35,
-      width: 0.25,
-      height: 0.25,
+      x: 7.1175,
+      y: 6.1475,
+      width: 0.025,
+      height: 0.025,
       fixed: true,
       label: 'Стояк кухни'
-    },
-    {
-      id: 'eng-riser-bath',
-      type: 'riser',
-      roomId: 'room-bath',
-      x: 8.15,
-      y: 1.75,
-      width: 0.2,
-      height: 0.2,
-      fixed: true,
-      label: 'Стояк санузла'
     },
     {
       id: 'eng-pipe-bath',
@@ -450,34 +481,40 @@ export const APARTMENT_DATA = {
       id: 'eng-radiator-living',
       type: 'radiator',
       roomId: 'room-living',
-      x: 1.0,
-      y: 5.85,
-      width: 1.2,
-      height: 0.15,
+      x: 1.345,
+      y: 6.114,
+      width: 1.311,
+      height: 0.096,
       fixed: true,
-      label: 'Радиатор большой комнаты'
+      label: 'Радиатор большой комнаты',
+      model: 'Конвектор Универсал КСК20-1311 К(П)',
+      sourceNote: 'Размер принят по строке КСК20-1311 К(П) из таблицы на изображении: длина кожуха 1311 мм, глубина 96 мм.'
     },
     {
       id: 'eng-radiator-small',
       type: 'radiator',
       roomId: 'room-small',
-      x: 4.65,
-      y: 5.85,
-      width: 1.0,
-      height: 0.15,
+      x: 4.701,
+      y: 6.114,
+      width: 1.049,
+      height: 0.096,
       fixed: true,
-      label: 'Радиатор малой комнаты'
+      label: 'Радиатор малой комнаты',
+      model: 'Конвектор Универсал КСК20-1049 К(П)',
+      sourceNote: 'Размер принят по строке КСК20-1049 К(П) из таблицы на изображении: длина кожуха 1049 мм, глубина 96 мм.'
     },
     {
       id: 'eng-radiator-kitchen',
       type: 'radiator',
       roomId: 'room-kitchen',
-      x: 7.65,
-      y: 5.85,
-      width: 1.0,
-      height: 0.15,
+      x: 7.758,
+      y: 6.114,
+      width: 0.934,
+      height: 0.096,
       fixed: true,
-      label: 'Радиатор кухни'
+      label: 'Радиатор кухни',
+      model: 'Конвектор Универсал КСК20-934 К(П)',
+      sourceNote: 'Размер принят по ближайшему типоразмеру из таблицы на изображении: длина кожуха 934 мм, глубина 96 мм.'
     }
   ],
 
