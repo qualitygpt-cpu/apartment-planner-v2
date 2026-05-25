@@ -193,6 +193,113 @@ function drawItemDimensions(group, items, scale) {
   });
 }
 
+
+function isHorizontalDoor(door) {
+  return door.width >= door.height;
+}
+
+function getDoorLeafGeometry(door) {
+  const hinge = door.swing?.hinge || 'start';
+  if (isHorizontalDoor(door)) {
+    if (hinge === 'end') {
+      return { hingePoint: { x: door.x + door.width, y: door.y }, closedVector: { x: -door.width, y: 0 }, leafLength: door.width };
+    }
+    return { hingePoint: { x: door.x, y: door.y }, closedVector: { x: door.width, y: 0 }, leafLength: door.width };
+  }
+  if (hinge === 'end') {
+    return { hingePoint: { x: door.x, y: door.y + door.height }, closedVector: { x: 0, y: -door.height }, leafLength: door.height };
+  }
+  return { hingePoint: { x: door.x, y: door.y }, closedVector: { x: 0, y: door.height }, leafLength: door.height };
+}
+
+function rotateVector(vector, angleDeg) {
+  const a = angleDeg * Math.PI / 180;
+  const c = Math.cos(a);
+  const si = Math.sin(a);
+  return { x: vector.x * c - vector.y * si, y: vector.x * si + vector.y * c };
+}
+
+function getDoorEndpointAtAngle(door, angleDeg) {
+  const { hingePoint, closedVector } = getDoorLeafGeometry(door);
+  const rv = rotateVector(closedVector, angleDeg);
+  return { x: hingePoint.x + rv.x, y: hingePoint.y + rv.y };
+}
+
+function pointInRect(p, rect, eps) {
+  return p.x >= rect.x - eps && p.x <= rect.x + rect.width + eps && p.y >= rect.y - eps && p.y <= rect.y + rect.height + eps;
+}
+
+function segmentsIntersect(a, b, c, d, eps) {
+  const cross = (u, v, w) => (v.x - u.x) * (w.y - u.y) - (v.y - u.y) * (w.x - u.x);
+  const onSeg = (u, v, w) => Math.min(u.x, v.x) - eps <= w.x && w.x <= Math.max(u.x, v.x) + eps && Math.min(u.y, v.y) - eps <= w.y && w.y <= Math.max(u.y, v.y) + eps;
+  const d1 = cross(a, b, c); const d2 = cross(a, b, d); const d3 = cross(c, d, a); const d4 = cross(c, d, b);
+  if (((d1 > eps && d2 < -eps) || (d1 < -eps && d2 > eps)) && ((d3 > eps && d4 < -eps) || (d3 < -eps && d4 > eps))) return true;
+  if (Math.abs(d1) <= eps && onSeg(a, b, c)) return true;
+  if (Math.abs(d2) <= eps && onSeg(a, b, d)) return true;
+  if (Math.abs(d3) <= eps && onSeg(c, d, a)) return true;
+  if (Math.abs(d4) <= eps && onSeg(c, d, b)) return true;
+  return false;
+}
+
+function lineIntersectsRect(p1, p2, rect, epsilon = 1e-6) {
+  if (pointInRect(p1, rect, epsilon) || pointInRect(p2, rect, epsilon)) return true;
+  const a = { x: rect.x, y: rect.y };
+  const b = { x: rect.x + rect.width, y: rect.y };
+  const c = { x: rect.x + rect.width, y: rect.y + rect.height };
+  const d = { x: rect.x, y: rect.y + rect.height };
+  return segmentsIntersect(p1, p2, a, b, epsilon)
+    || segmentsIntersect(p1, p2, b, c, epsilon)
+    || segmentsIntersect(p1, p2, c, d, epsilon)
+    || segmentsIntersect(p1, p2, d, a, epsilon);
+}
+
+function rectsTouchOrIntersect(a, b, eps = 1e-6) {
+  return a.x <= b.x + b.width + eps && a.x + a.width >= b.x - eps && a.y <= b.y + b.height + eps && a.y + a.height >= b.y - eps;
+}
+
+function doorHostWallShouldBeIgnored(door, wall) {
+  return rectsTouchOrIntersect(door, wall, 1e-4);
+}
+
+function doorIntersectsBlockingWalls(door, angleDeg, walls) {
+  const { hingePoint } = getDoorLeafGeometry(door);
+  const end = getDoorEndpointAtAngle(door, angleDeg);
+  return walls.some((wall) => !doorHostWallShouldBeIgnored(door, wall) && lineIntersectsRect(hingePoint, end, wall, 1e-5));
+}
+
+function findMaxSafeDoorAngle(door, walls) {
+  const requested = Math.min(150, Math.max(0, door.swing?.maxAngleDeg ?? 150));
+  for (let angle = requested; angle >= 0; angle -= 1) {
+    const signedAngle = angle * (door.swing?.openSign ?? 1);
+    if (!doorIntersectsBlockingWalls(door, signedAngle, walls)) return signedAngle;
+  }
+  return 0;
+}
+
+function drawDoorSwings(group, state, scale) {
+  state.doorOpenings.forEach((door) => {
+    if (!door.swing?.enabled) return;
+    const { hingePoint, closedVector, leafLength } = getDoorLeafGeometry(door);
+    const openAngle = findMaxSafeDoorAngle(door, state.walls);
+    const openVector = rotateVector(closedVector, openAngle);
+    const closedEnd = { x: hingePoint.x + closedVector.x, y: hingePoint.y + closedVector.y };
+    const openEnd = { x: hingePoint.x + openVector.x, y: hingePoint.y + openVector.y };
+
+    group.appendChild(el('line', {
+      x1: hingePoint.x * scale,
+      y1: hingePoint.y * scale,
+      x2: openEnd.x * scale,
+      y2: openEnd.y * scale,
+      class: 'door-leaf-open'
+    }));
+
+    group.appendChild(el('path', {
+      d: `M ${closedEnd.x * scale} ${closedEnd.y * scale} A ${leafLength * scale} ${leafLength * scale} 0 0 ${door.swing.openSign > 0 ? 1 : 0} ${openEnd.x * scale} ${openEnd.y * scale}`,
+      class: 'door-swing-arc'
+    }));
+  });
+}
+
 export function renderPlan(svg, model) {
   const { state, selectedId } = model;
   const scale = state.meta.scalePxPerMeter;
@@ -225,6 +332,12 @@ export function renderPlan(svg, model) {
     }
     addRect(root, eng, scale, `engineering ${eng.type}`, selectedId);
   });
+
+  if (model.showDoorSwings) {
+    const doorSwingGroup = el('g', { class: 'door-swing-group' });
+    drawDoorSwings(doorSwingGroup, state, scale);
+    root.appendChild(doorSwingGroup);
+  }
 
   [...state.items].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0)).forEach((item) => {
     const g = el('g', { 'data-id': item.id, class: 'movable-wrap' });

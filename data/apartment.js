@@ -286,17 +286,6 @@ export const APARTMENT_DATA = {
       height: 0.98,
       thickness: 0.05,
       fixed: true
-    },
-    {
-      id: 'w-toilet-shaft',
-      type: 'wall',
-      wallKind: 'partition',
-      x: 9.29,
-      y: 2.2,
-      width: 0.05,
-      height: 0.6,
-      thickness: 0.05,
-      fixed: true
     }
   ],
 
@@ -310,7 +299,8 @@ export const APARTMENT_DATA = {
       height: 0.17,
       roomA: 'outside',
       roomB: 'room-corridor-6',
-      label: 'Входная дверь'
+      label: 'Входная дверь',
+      swing: { enabled: true, hinge: 'start', openSign: -1, maxAngleDeg: 150 }
     },
     {
       id: 'd-living-corridor6',
@@ -321,7 +311,8 @@ export const APARTMENT_DATA = {
       height: 0.9,
       roomA: 'room-living',
       roomB: 'room-corridor-6',
-      label: 'Дверь в большую комнату'
+      label: 'Дверь в большую комнату',
+      swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
       id: 'd-small-corridor6',
@@ -332,7 +323,8 @@ export const APARTMENT_DATA = {
       height: 0.05,
       roomA: 'room-small',
       roomB: 'room-corridor-6',
-      label: 'Дверь в малую комнату'
+      label: 'Дверь в малую комнату',
+      swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
       id: 'd-corridor6-corridor7',
@@ -343,7 +335,8 @@ export const APARTMENT_DATA = {
       height: 0.9,
       roomA: 'room-corridor-6',
       roomB: 'room-corridor-7',
-      label: 'Проход между коридорами'
+      label: 'Проход между коридорами',
+      swing: { enabled: true, hinge: 'start', openSign: -1, maxAngleDeg: 150 }
     },
     {
       id: 'd-kitchen-corridor7',
@@ -354,7 +347,8 @@ export const APARTMENT_DATA = {
       height: 0.05,
       roomA: 'room-kitchen',
       roomB: 'room-corridor-7',
-      label: 'Дверь в кухню'
+      label: 'Дверь в кухню',
+      swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
       id: 'd-bath-corridor7',
@@ -365,7 +359,8 @@ export const APARTMENT_DATA = {
       height: 0.75,
       roomA: 'room-bath',
       roomB: 'room-corridor-7',
-      label: 'Дверь в ванную'
+      label: 'Дверь в ванную',
+      swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
       id: 'd-toilet-corridor7',
@@ -376,7 +371,8 @@ export const APARTMENT_DATA = {
       height: 0.75,
       roomA: 'room-toilet',
       roomB: 'room-corridor-7',
-      label: 'Дверь в уборную'
+      label: 'Дверь в уборную',
+      swing: { enabled: true, hinge: 'end', openSign: -1, maxAngleDeg: 150 }
     }
   ],
 

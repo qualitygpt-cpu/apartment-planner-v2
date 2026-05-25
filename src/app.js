@@ -9,6 +9,7 @@ const treeContainer = document.getElementById('treeContainer');
 const statusText = document.getElementById('statusText');
 const toggleDimensionsBtn = document.getElementById('toggleDimensionsBtn');
 const toggleItemDimensionsBtn = document.getElementById('toggleItemDimensionsBtn');
+const toggleDoorSwingsBtn = document.getElementById('toggleDoorSwingsBtn');
 const selectedItemTools = document.getElementById('selectedItemTools');
 
 const model = createModel();
@@ -127,9 +128,10 @@ async function exportFurnitureLayout() {
   statusText.textContent = 'Экспорт мебели скопирован в буфер';
 }
 
-function syncDimensionButtons() {
+function syncToolbarButtons() {
   toggleDimensionsBtn.textContent = `Размеры: ${model.showStructureDimensions ? 'вкл' : 'выкл'}`;
   toggleItemDimensionsBtn.textContent = `Размеры мебели: ${model.showItemDimensions ? 'вкл' : 'выкл'}`;
+  toggleDoorSwingsBtn.textContent = `Двери: ${model.showDoorSwings ? 'вкл' : 'выкл'}`;
 }
 
 function syncSelectedToolsVisibility() {
@@ -178,7 +180,7 @@ function rerender() {
     },
     (id) => editObjectDimensionsMm(id)
   );
-  syncDimensionButtons();
+  syncToolbarButtons();
   syncSelectedToolsVisibility();
 }
 
@@ -254,6 +256,11 @@ toggleDimensionsBtn.addEventListener('click', () => {
 
 toggleItemDimensionsBtn.addEventListener('click', () => {
   model.showItemDimensions = !model.showItemDimensions;
+  rerender();
+});
+
+toggleDoorSwingsBtn.addEventListener('click', () => {
+  model.showDoorSwings = !model.showDoorSwings;
   rerender();
 });
 
