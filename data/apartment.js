@@ -88,9 +88,9 @@ export const APARTMENT_DATA = {
       type: 'toilet',
       x: 8.09,
       y: 2.2,
-      width: 1.66,
+      width: 1.2,
       height: 0.6,
-      area: 1.0,
+      area: 0.72,
       fill: '#f3f6ff',
       label: '5. Уборная',
       children: []
@@ -103,7 +103,7 @@ export const APARTMENT_DATA = {
       x: 3.99,
       y: 0.4,
       width: 2.82,
-      height: 1.56,
+      height: 1.61,
       area: 4.4,
       fill: '#f7f7f7',
       label: '6. Коридор',
@@ -116,7 +116,7 @@ export const APARTMENT_DATA = {
       type: 'corridor',
       x: 6.98,
       y: 0.4,
-      width: 1.08,
+      width: 1.06,
       height: 2.78,
       area: 3.0,
       fill: '#f7f7f7',
@@ -271,7 +271,7 @@ export const APARTMENT_DATA = {
       wallKind: 'partition',
       x: 8.09,
       y: 2.15,
-      width: 1.66,
+      width: 1.2,
       height: 0.05,
       thickness: 0.05,
       fixed: true
@@ -282,8 +282,19 @@ export const APARTMENT_DATA = {
       wallKind: 'partition',
       x: 8.09,
       y: 2.8,
-      width: 1.66,
+      width: 1.2,
       height: 0.05,
+      thickness: 0.05,
+      fixed: true
+    },
+    {
+      id: 'w-toilet-shaft',
+      type: 'wall',
+      wallKind: 'partition',
+      x: 9.29,
+      y: 2.2,
+      width: 0.05,
+      height: 0.6,
       thickness: 0.05,
       fixed: true
     }
@@ -362,7 +373,7 @@ export const APARTMENT_DATA = {
       x: 8.04,
       y: 2.25,
       width: 0.05,
-      height: 0.5,
+      height: 0.75,
       roomA: 'room-toilet',
       roomB: 'room-corridor-7',
       label: 'Дверь в уборную'
