@@ -14,7 +14,8 @@ export function createModel() {
     selectedId: null,
     viewBox: { x: 0, y: 0, width: 1200, height: 860 },
     showStructureDimensions: false,
-    showItemDimensions: false
+    showItemDimensions: false,
+    showDoorSwings: false
   };
 }
 
