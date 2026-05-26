@@ -343,8 +343,7 @@ export function renderPlan(svg, model) {
     const g = el('g', { 'data-id': item.id, class: 'movable-wrap' });
     const centerX = (item.x + item.width / 2) * scale;
     const centerY = (item.y + item.height / 2) * scale;
-    const sofaOrientationOffset = item.id === 'f-sofa' && item.height > item.width ? 90 : 0;
-    g.setAttribute('transform', `rotate(${(item.rotation || 0) + sofaOrientationOffset} ${centerX} ${centerY})`);
+    g.setAttribute('transform', `rotate(${item.rotation || 0} ${centerX} ${centerY})`);
     if (item.id === 'f-sofa') {
       const r = rectToSvg(item, scale);
       const image = el('image', {
