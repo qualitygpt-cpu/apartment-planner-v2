@@ -327,6 +327,18 @@ export const APARTMENT_DATA = {
       swing: { enabled: true, hinge: 'start', openSign: 1, maxAngleDeg: 150 }
     },
     {
+      id: 'd-corridor6-corridor7',
+      type: 'doorOpening',
+      x: 6.81,
+      y: 1.07,
+      width: 0.17,
+      height: 0.87,
+      roomA: 'room-corridor-6',
+      roomB: 'room-corridor-7',
+      label: 'Проем между коридорами',
+      swing: { enabled: false, hinge: 'start', openSign: -1, maxAngleDeg: 150 }
+    },
+    {
       id: 'd-kitchen-corridor7',
       type: 'doorOpening',
       x: 7.15,
