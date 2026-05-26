@@ -293,7 +293,7 @@ export const APARTMENT_DATA = {
     {
       id: 'd-entry-corridor6',
       type: 'doorOpening',
-      x: 8.1,
+      x: 5.11,
       y: 0.23,
       width: 0.78,
       height: 0.17,
@@ -453,17 +453,6 @@ export const APARTMENT_DATA = {
       height: 0.025,
       fixed: true,
       label: 'Стояк кухни'
-    },
-    {
-      id: 'eng-pipe-bath',
-      type: 'pipe',
-      roomId: 'room-bath',
-      x: 8.35,
-      y: 1.85,
-      width: 1.1,
-      height: 0.08,
-      fixed: true,
-      label: 'Трубы ванной'
     },
     {
       id: 'eng-radiator-living',
